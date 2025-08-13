@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Speech Translator</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_RESPONSIVEVOICE_API_KEY"></script>
+    
+    <!-- Local Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🗣️ Real-time Speech Translator</h1>
+            <p class="subtitle">Powered by IndicTrans2 & Web Speech API</p>
+        </header>
+
+        <!-- Language Selection Panel -->
+        <section class="language-panel">
+            <div class="language-selector">
+                <label for="fromLang">From Language:</label>
+                <select id="fromLang" class="language-dropdown">
+                    <option value="hi">Hindi (हिंदी)</option>
+                    <option value="en" selected>English</option>
+                    <option value="bn">Bengali (বাংলা)</option>
+                    <option value="ta">Tamil (தமிழ்)</option>
+                    <option value="te">Telugu (తెలుగు)</option>
+                    <option value="mr">Marathi (मराठी)</option>
+                    <option value="gu">Gujarati (ગુજરાતી)</option>
+                    <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                </select>
+            </div>
+            
+            <div class="arrow-container">
+                <button id="switchLangBtn" class="switch-button" title="Switch Languages">
+                    ⟷
+                </button>
+            </div>
+            
+            <div class="language-selector">
+                <label for="toLang">To Language:</label>
+                <select id="toLang" class="language-dropdown">
+                    <option value="hi" selected>Hindi (हिंदी)</option>
+                    <option value="en">English</option>
+                    <option value="bn">Bengali (বাংলা)</option>
+                    <option value="ta">Tamil (தமிழ்)</option>
+                    <option value="te">Telugu (తెలుగు)</option>
+                    <option value="mr">Marathi (मराठी)</option>
+                    <option value="gu">Gujarati (ગુજરાતી)</option>
+                    <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Status Display -->
+        <section class="status-panel">
+            <div id="statusDisplay" class="status-display">
+                <div class="status-icon">🎤</div>
+                <div class="status-text">Ready to start translation</div>
+            </div>
+            
+            <!-- Audio Level Indicator -->
+            <div class="audio-level-container">
+                <label>Audio Level:</label>
+                <div class="volume-indicator">
+                    <div id="volumeBar" class="volume-bar"></div>
+                </div>
+            </div>
+            
+            <!-- Current Side Indicator -->
+            <div class="side-indicator">
+                <span class="side-label">Current Speaker:</span>
+                <span id="currentSide" class="side-badge">Side A</span>
+            </div>
+        </section>
+
+        <!-- Control Buttons -->
+        <section class="control-panel">
+            <button id="startBtn" class="control-btn primary">
+                <span class="btn-icon">▶️</span>
+                Start Translation
+            </button>
+            
+            <button id="stopBtn" class="control-btn secondary" disabled>
+                <span class="btn-icon">⏹️</span>
+                Stop Translation
+            </button>
+            
+            <button id="pauseBtn" class="control-btn secondary" disabled>
+                <span class="btn-icon">⏸️</span>
+                Pause
+            </button>
+            
+            <button id="clearBtn" class="control-btn tertiary">
+                <span class="btn-icon">🗑️</span>
+                Clear History
+            </button>
+        </section>
+
+        <!-- Conversation Display -->
+        <section class="conversation-panel">
+            <div class="conversation-header">
+                <h3>Conversation History</h3>
+                <div class="conversation-stats">
+                    <span id="messageCount">0 messages</span>
+                </div>
+            </div>
+            
+            <div id="conversationArea" class="conversation-area">
+                <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <p>Start speaking to see the conversation here</p>
+                    <small>The system will automatically detect pauses and translate your speech</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Panel (Initially Hidden) -->
+        <section class="settings-panel" id="settingsPanel" style="display: none;">
+            <h3>⚙️ Advanced Settings</h3>
+            
+            <div class="setting-group">
+                <label for="silenceThreshold">Silence Detection Threshold:</label>
+                <input type="range" id="silenceThreshold" min="0" max="50" value="10">
+                <span id="silenceThresholdValue">10</span>
+            </div>
+            
+            <div class="setting-group">
+                <label for="silenceDuration">Silence Duration (seconds):</label>
+                <input type="range" id="silenceDuration" min="1" max="10" value="3">
+                <span id="silenceDurationValue">3</span>
+            </div>
+            
+            <div class="setting-group">
+                <label for="translationModel">Translation Model:</label>
+                <select id="translationModel">
+                    <option value="indictrans2-en-indic">IndicTrans2 (EN → Indic)</option>
+                    <option value="indictrans2-indic-en">IndicTrans2 (Indic → EN)</option>
+                    <option value="indictrans2-indic-indic">IndicTrans2 (Indic → Indic)</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Footer with Settings Toggle -->
+        <footer class="footer">
+            <button id="settingsToggle" class="settings-toggle">
+                ⚙️ Advanced Settings
+            </button>
+            
+            <div class="compatibility-info">
+                <div id="browserSupport" class="browser-support">
+                    <span class="support-label">Browser Support:</span>
+                    <span id="speechSupport" class="support-status">Checking...</span>
+                    <span id="audioSupport" class="support-status">Checking...</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Error</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage">An error occurred</p>
+            </div>
+            <div class="modal-footer">
+                <button id="errorOkBtn" class="control-btn primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing translation...</p>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="config/config.js"></script>
+    <script src="js/speech-recognition.js"></script>
+    <script src="js/audio-analyzer.js"></script>
+    <script src="js/translator.js"></script>
+    <script src="js/text-to-speech.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
